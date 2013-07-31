@@ -23,7 +23,8 @@
   "dependencies": {
     "request": "~2.25.0",
     "sugar": "~1.3.8",
-    "async": "~0.2.9"
+    "async": "~0.2.9",
+    "usage": "~0.3.7"
   },
   "devDependencies": {
     "jshint": "~2.1.4",

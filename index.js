@@ -2,7 +2,8 @@ var Waiter = require('./lib/waiter');
 
 var async   = require('async'),
     xrange  = require('xrange'),
-    request = require('request');
+    request = require('request'),
+    usage   = require('usage');
 
 var util    = require('util');
 
@@ -19,6 +20,26 @@ var waiter = new Waiter(requestsPerSecond);
 
 var start = Date.create();
 
+var usageCount = 0,
+    usageSum = 0;
+
+var getPoundedness = function (pid) {
+    usage.lookup(pid, function (err, result) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        usageSum += result.cpu;
+        usageCount += 1;
+    });
+};
+
+var processThread;
+
+if (process.argv[3]) {
+    processThread = setInterval(getPoundedness.bind(null, parseInt(process.argv[3], 10)), 50);
+}
+
 async.eachLimit(xrange(numRequests), simultaneous, function (each, callback) {
     waiter.wait(function () {
         request(options, function (err, resp, body) {
@@ -34,4 +55,8 @@ async.eachLimit(xrange(numRequests), simultaneous, function (each, callback) {
     if (err) {
         console.log('Received error', err);
     }
+
+    console.log('Average CPU', usageSum / usageCount);
+
+    clearInterval(processThread);
 });
